@@ -33,3 +33,5 @@ while IFS= read -r release; do
      rsync -avz ${BASE_DIR}/TIME ${HOST}:jenkins/TIME
 done <<< "${RECENT_RELEASES}"
 
+ssh jenkins@ftp-osl.osuosl.org 'sh trigger-jenkins'
+
