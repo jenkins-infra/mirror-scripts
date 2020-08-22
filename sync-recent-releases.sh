@@ -22,10 +22,14 @@ if [[ -z "$RECENT_RELEASES" ]] ; then
     echo "No recent releases"
     exit
 fi
+
 while IFS= read -r release; do
     blobxfer upload --storage-account "$AZURE_STORAGE_ACCOUNT" --storage-account-key "$AZURE_STORAGE_KEY" --local-path "${BASE_DIR}/plugins/$release" --remote-path mirrorbits/plugins/${release} --recursive --mode file --no-overwrite --exclude 'mvn%20org.apache.maven.plugins:maven-release-plugin:2.5:perform' --file-md5 --skip-on-md5-match  --no-progress-bar
+     ssh www-data@archives.jenkins-ci.org "mkdir -p /srv/releases/plugins/${release}"
      rsync -avz ${BASE_DIR}/plugins/${release} www-data@archives.jenkins-ci.org:/srv/releases/plugins/${release}
+     ssh ${HOST} "mkdir -p jenkins/plugins/${release}"
      rsync -avz ${BASE_DIR}/plugins/${release} ${HOST}:jenkins/plugins/${release}
-     ssh ${HOST} 'echo $(date +%s) > jenkins/TIME'
+     echo $(date +%s) > ${BASE_DIR}/TIME
+     rsync -avz ${BASE_DIR}/TIME ${HOST}:jenkins/TIME
 done <<< "${RECENT_RELEASES}"
 
