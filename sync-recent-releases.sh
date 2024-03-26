@@ -47,12 +47,12 @@ while IFS= read -r release; do
     # Don't print any trace
     set +x
 
-    # ${release} is a directory (hence the trailing slash for destination) to avoid `azcopy` error related to file <-> dir
+    # Synchronising all releases of the plugin as azcopy sync only the file instead of the folder if ${release} is passed as it is
     azcopy sync \
         --skip-version-check \
         --recursive=true \
         --delete-destination=false \
-        "${BASE_DIR}/plugins/${release}" "${urlWithoutToken}plugins/?${token}"
+        "${BASE_DIR}/plugins/$(dirname "${release}")" "${urlWithoutToken}plugins/?${token}"
 
     # Following commands traces are safe
     set -x
